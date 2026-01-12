@@ -1,30 +1,95 @@
 #include <stdlib.h>
 #include <unistd.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <string.h>
 
+void print_board(bool (**board), unsigned int width, unsigned int height)
+{
+    for (unsigned int y = 0; y < height; y++) 
+    {
+        for (unsigned int x = 0; x < width; x++) 
+        {
+            putchar((*board)[y * width + x] ? '0' : ' ');
+        }
+        putchar('\n');
+    }
+}
+
 int main(int argc, char *argv[])
 {
-    if (argc != 4)
+    // 1. validate argc
+    if (argc != 4) 
     {
-        //printf("Usage: %s <arg1> <arg2> <arg3>\n", argv[0]);
+        printf("Usage: %s <arg1> <arg2> <arg3>\n", argv[0]);
         return 1;
     }
 
-    int width = atoi(argv[1]);
-    int height = atoi(argv[2]);
-    int iter = atoi(argv[3]);
+    // 2. parse width, height, iterations
+    unsigned int width = atoi(argv[1]);
+    unsigned int height = atoi(argv[2]);
+    unsigned int iter = atoi(argv[3]);
+    printf("Arguments received: %u, %u, %u\n", width, height, iter);
 
-    //printf("Arguments received: %d, %d, %d\n", width, height, iter);
+    // 3.declare boards and pointers
+    bool board1[height][width];
+    bool board2[height][width];
+    bool (*current)[width]    = board1;
+    //bool (*next)[width]       = board2;
 
-    int board1[height][width];
-    int board2[height][width];
-
+    // 4. initialize boards to zero
     memset(board1, 0, sizeof(board1));
     memset(board2, 0, sizeof(board2));
 
-    int *current    = NULL;
-    int *next       = NULL;
+    // 5. drawing phase: read commands from standard input, update board
+    char buffer[1];
+    ssize_t bytesRead = 0;
+    bool penDown = false;
+    unsigned int x = 0, y = 0;
+    while (bytesRead = read(STDIN_FILENO, buffer, 1), bytesRead > 0) 
+    {
+        char command = buffer[0];
+        if (command == 'x' || command == 'X') 
+        {
+            penDown = !penDown;
+        } 
+        else if (command == 'W' || command == 'w')
+        {  
+            if (y > 0) y--;
+        } 
+        else if (command == 'S' || command == 's') 
+        {
+            if (y < height - 1) y++;
+        } 
+        else if (command == 'A' || command == 'a') 
+        {
+            if (x > 0) x--;
+        } 
+        else if (command == 'D' || command == 'd') 
+        {
+            if (x < width - 1) x++;
+        } 
+        else
+        {
+            ; // ignore unknown commands
+        }
+
+        if (penDown) 
+        {
+            current[y][x] = true; // Mark the cell as live
+        }   
+
+    }
+    if (bytesRead < 0) 
+    {
+        perror("Error reading from stdin");
+        return 1;
+    }
+
+    print_board(current, width, height);
+
+
+
 
     return 0;
 }
