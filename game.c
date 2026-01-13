@@ -4,13 +4,13 @@
 #include <stdio.h>
 #include <string.h>
 
-void print_board(bool (**board), unsigned int width, unsigned int height)
+void print_board(unsigned int width, unsigned int height, bool board[][width])
 {
-    for (unsigned int y = 0; y < height; y++) 
+    for (unsigned int row = 0; row < height; row++) 
     {
-        for (unsigned int x = 0; x < width; x++) 
+        for (unsigned int col = 0; col < width; col++) 
         {
-            putchar((*board)[y * width + x] ? '0' : ' ');
+            putchar(board[row][col] ? 'O' : ' ');
         }
         putchar('\n');
     }
@@ -48,6 +48,11 @@ int main(int argc, char *argv[])
     unsigned int x = 0, y = 0;
     while (bytesRead = read(STDIN_FILENO, buffer, 1), bytesRead > 0) 
     {
+        if (penDown) 
+        {
+            current[y][x] = true; // Mark the cell as live
+        }   
+
         char command = buffer[0];
         if (command == 'x' || command == 'X') 
         {
@@ -73,20 +78,14 @@ int main(int argc, char *argv[])
         {
             ; // ignore unknown commands
         }
-
-        if (penDown) 
-        {
-            current[y][x] = true; // Mark the cell as live
-        }   
-
     }
     if (bytesRead < 0) 
     {
-        perror("Error reading from stdin");
+        //perror("Error reading from stdin");
         return 1;
     }
 
-    print_board(current, width, height);
+    print_board(width, height, current);
 
 
 
